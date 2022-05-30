@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using ProjectManagement.Data.Identity;
 using ProjectManagement.Database;
 
 namespace ProjectManagement.Data.Projects
@@ -9,6 +10,9 @@ namespace ProjectManagement.Data.Projects
 
         [MaxLength(Metadata.NameLength)]
         public string Name { get; set; } = string.Empty;
+
+        public User Owner { get; set; }
+        public Guid OwnerId { get; set; }
 
         public Instant CreatedTimestamp { get; set; }
 

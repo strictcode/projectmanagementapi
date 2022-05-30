@@ -41,7 +41,7 @@ public class ProjectController : ControllerBase
     }
 
     /// <summary>
-    /// DONT DO THIS!
+    ///
     /// </summary>
     /// <returns></returns>
     [Authorize]
