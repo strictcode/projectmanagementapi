@@ -7,6 +7,9 @@ using ProjectManagement.Models.Issues;
 using ProjectManagement.Utilities;
 
 namespace ProjectManagement.Controllers;
+/// <summary>
+/// 
+/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class IssueController : ControllerBase
@@ -14,6 +17,11 @@ public class IssueController : ControllerBase
     private readonly IClock clock;
     private readonly AppDbContext dbContext;
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="clock"></param>
+    /// <param name="dbContext"></param>
     public IssueController(
         IClock clock,
         AppDbContext dbContext
@@ -23,6 +31,11 @@ public class IssueController : ControllerBase
         this.dbContext = dbContext;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -30,14 +43,16 @@ public class IssueController : ControllerBase
     public async Task<ActionResult<IssueModel>> Get(
         [FromRoute] Guid id)
     {
-        var issue = await dbContext.Issues
+        var issue = await dbContext
+            .Issues
+            .IncludeForDetail()
             .SingleOrDefaultAsync(x => x.Id == id);
 
         if (issue is null)
         {
             return NotFound();
         }
-        return Ok(issue.ToModel());
+        return Ok(issue.ToDetailModel());
     }
 
     /// <summary>
@@ -50,11 +65,19 @@ public class IssueController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<IssueModel>>> GetList()
     {
-        var issues = await dbContext.Issues.ToListAsync();
+        var issues = await dbContext
+            .Issues
+            .IncludeForDetail()
+            .ToListAsync();
 
-        return Ok(issues.Select(x => x.ToModel()));
+        return Ok(issues.Select(x => x.ToDetailModel()));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpPost]
     public async Task<ActionResult<IssueModel>> Create(
@@ -74,15 +97,23 @@ public class IssueController : ControllerBase
         var issue = new Issue {
             Summary = model.Summary,
             AssigneeId = model.AssigneeId,
-
+            ReporterId = User.GetUserId(),
         }.SetCreateBy(User.GetName(), clock.GetCurrentInstant());
 
         dbContext.Add(issue);
         await dbContext.SaveChangesAsync();
 
-        return Ok(issue.ToModel());
+        issue = await dbContext.Issues.IncludeForDetail().SingleAsync(x => x.Id == issue.Id);
+
+        return Ok(issue.ToDetailModel());
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult<IssueModel>> Update(
@@ -101,6 +132,7 @@ public class IssueController : ControllerBase
         }
 
         var issue = await dbContext.Issues
+            .IncludeForDetail()
             .SingleOrDefaultAsync(x => x.Id == id);
 
         if (issue is null)
@@ -109,12 +141,13 @@ public class IssueController : ControllerBase
         }
 
         issue.Summary = model.Summary;
+        issue.Description = model.Description;
         issue.AssigneeId = model.AssigneeId;
 
         issue.SetModifyBy(User.GetName(), clock.GetCurrentInstant());
 
         await dbContext.SaveChangesAsync();
 
-        return Ok(issue.ToModel());
+        return Ok(issue.ToDetailModel());
     }
 }

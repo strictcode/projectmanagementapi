@@ -6,7 +6,7 @@ namespace ProjectManagement.Models.Issues;
 /// <summary>
 /// 
 /// </summary>
-public class IssueModel
+public class IssueIndexModel
 {
     /// <summary>
     /// 
@@ -19,31 +19,26 @@ public class IssueModel
     /// <summary>
     /// 
     /// </summary>
-    public string Description { get; set; } = string.Empty;
-    /// <summary>
-    /// 
-    /// </summary>
-    public UserShortModel Reporter { get; set; } = new();
-    /// <summary>
-    /// 
-    /// </summary>
     public UserShortModel? Assignee { get; set; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public string ProjectName { get; set; } = null!;
 }
 
 /// <summary>
 /// 
 /// </summary>
-public static class IssueModelExtensions
+public static class IssueINdexModelExtensions
 {
     /// <summary>
     /// 
     /// </summary>
     /// <param name="queryable"></param>
     /// <returns></returns>
-    public static IQueryable<Issue> IncludeForDetail(this IQueryable<Issue> queryable)
+    public static IQueryable<Issue> IncludeForIndex(this IQueryable<Issue> queryable)
         => queryable
         .Include(x => x.Assignee)
-        .Include(x => x.Reporter)
         .Include(x => x.Project)
         ;
 
@@ -52,12 +47,11 @@ public static class IssueModelExtensions
     /// </summary>
     /// <param name="source"></param>
     /// <returns></returns>
-    public static IssueModel ToDetailModel(this Issue source)
+    public static IssueIndexModel ToIndexModel(this Issue source)
         => new() {
             Id = source.Id,
             Summary = source.Summary,
-            Description = source.Description,
             Assignee = source.Assignee?.ToShortModel(),
-            Reporter = source.Reporter.ToShortModel(),
+            ProjectName = source.Project.Name,
         };
 }

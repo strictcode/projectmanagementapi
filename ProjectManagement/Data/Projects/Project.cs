@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using ProjectManagement.Data.Identity;
+using ProjectManagement.Data.Issues;
 using ProjectManagement.Database;
 
 namespace ProjectManagement.Data.Projects
@@ -13,6 +14,8 @@ namespace ProjectManagement.Data.Projects
 
         public User Owner { get; set; }
         public Guid OwnerId { get; set; }
+
+        public ICollection<Issue> Issues { get; set; } = null!;
 
         public Instant CreatedTimestamp { get; set; }
 

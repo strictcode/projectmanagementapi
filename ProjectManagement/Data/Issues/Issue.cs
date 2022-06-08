@@ -1,4 +1,5 @@
 using ProjectManagement.Data.Identity;
+using ProjectManagement.Data.Projects;
 using ProjectManagement.Database;
 
 namespace ProjectManagement.Data.Issues;
@@ -16,6 +17,9 @@ public class Issue : ITrackable
     public string Summary { get; set; } = null!;
 
     public string Description { get; set; } = string.Empty;
+
+    public Project Project { get; set; }
+    public Guid ProjectId { get; set; }
 
     public User Reporter { get; set; } = null!;
     public Guid ReporterId { get; set; }

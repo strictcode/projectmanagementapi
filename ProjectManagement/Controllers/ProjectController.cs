@@ -7,6 +7,9 @@ using ProjectManagement.Models.Projects;
 using ProjectManagement.Utilities;
 
 namespace ProjectManagement.Controllers;
+/// <summary>
+/// 
+/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class ProjectController : ControllerBase
@@ -14,6 +17,11 @@ public class ProjectController : ControllerBase
     private readonly IClock clock;
     private readonly AppDbContext dbContext;
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="clock"></param>
+    /// <param name="dbContext"></param>
     public ProjectController(
         IClock clock,
         AppDbContext dbContext
@@ -23,6 +31,11 @@ public class ProjectController : ControllerBase
         this.dbContext = dbContext;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -31,6 +44,7 @@ public class ProjectController : ControllerBase
         [FromRoute] Guid id)
     {
         var project = await dbContext.Projects
+            .IncludeForModel()
             .SingleOrDefaultAsync(x => x.Id == id);
 
         if (project is null)
@@ -50,11 +64,19 @@ public class ProjectController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<ProjectModel>>> GetList()
     {
-        var projects = await dbContext.Projects.ToListAsync();
+        var projects = await dbContext
+            .Projects
+            .IncludeForModel()
+            .ToListAsync();
 
         return Ok(projects.Select(x => x.ToModel()));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpPost]
     public async Task<ActionResult<ProjectModel>> Create(
@@ -62,21 +84,32 @@ public class ProjectController : ControllerBase
     {
         var project = new Project {
             Name = model.Name,
+            OwnerId = User.GetUserId(),
         }.SetCreateBy(User.GetName(), clock.GetCurrentInstant());
 
         dbContext.Add(project);
         await dbContext.SaveChangesAsync();
 
+        project = await dbContext.Projects.IncludeForModel().SingleAsync(x => x.Id == project.Id);
+
         return Ok(project.ToModel());
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult<ProjectModel>> Update(
         [FromRoute] Guid id,
         [FromBody] ProjectCreateModel model)
     {
-        var project = await dbContext.Projects
+        var project = await dbContext
+            .Projects
+            .IncludeForModel()
             .SingleOrDefaultAsync(x => x.Id == id);
 
         if (project is null)
