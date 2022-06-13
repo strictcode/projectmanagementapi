@@ -161,7 +161,7 @@ public class UserController : ControllerBase
     public async Task<ActionResult<IEnumerable<string>>> GetList()
     {
         var users = await dbContext.Users.ToListAsync();
-        return Ok(users.Select(x => x.Email));
+        return Ok(users.Select(x => x.ToShortModel()));
     }
 
     /// <summary>
