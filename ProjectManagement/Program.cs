@@ -44,7 +44,25 @@ builder.Services
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, (options) =>
+    {
+        options.Cookie.Name = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Events = new CookieAuthenticationEvents {
+            OnRedirectToLogin = redirectContext =>
+            {
+                redirectContext.HttpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            },
+            OnRedirectToAccessDenied = redirectContext =>
+            {
+                redirectContext.HttpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            },
+        };
+    });
 
 builder.Services
     .AddAuthorization(config =>
