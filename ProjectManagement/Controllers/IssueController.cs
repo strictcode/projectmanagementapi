@@ -98,12 +98,45 @@ public class IssueController : ControllerBase
             Summary = model.Summary,
             AssigneeId = model.AssigneeId,
             ReporterId = User.GetUserId(),
+            ProjectId = model.ProjectId,
+            Status = (IssueState)model.StatusId,
         }.SetCreateBy(User.GetName(), clock.GetCurrentInstant());
 
         dbContext.Add(issue);
         await dbContext.SaveChangesAsync();
 
         issue = await dbContext.Issues.IncludeForDetail().SingleAsync(x => x.Id == issue.Id);
+
+        return Ok(issue.ToDetailModel());
+    }
+
+    /// <summary>
+    /// Todo = 1,
+    /// InProgress = 2,
+    /// Done = 3,
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [Authorize]
+    [HttpPatch("{id}/Status/{statusId}")]
+    public async Task<ActionResult<IssueModel>> UpdateStatus(
+        [FromRoute] Guid id,
+        [FromRoute] int statusId)
+    {
+        var issue = await dbContext.Issues
+            .IncludeForDetail()
+            .SingleOrDefaultAsync(x => x.Id == id);
+
+        if (issue is null)
+        {
+            return NotFound();
+        }
+        issue.Status = (IssueState)statusId;
+
+        issue.SetModifyBy(User.GetName(), clock.GetCurrentInstant());
+
+        await dbContext.SaveChangesAsync();
 
         return Ok(issue.ToDetailModel());
     }
@@ -143,6 +176,7 @@ public class IssueController : ControllerBase
         issue.Summary = model.Summary;
         issue.Description = model.Description;
         issue.AssigneeId = model.AssigneeId;
+        issue.Status = (IssueState)model.StatusId;
 
         issue.SetModifyBy(User.GetName(), clock.GetCurrentInstant());
 

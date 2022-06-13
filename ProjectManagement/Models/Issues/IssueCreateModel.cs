@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using ProjectManagement.Data.Issues;
 
 namespace ProjectManagement.Models.Issues;
 /// <summary>
@@ -16,6 +17,12 @@ public class IssueCreateModel
     /// 
     /// </summary>
     public string? Description { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [EnumDataType(typeof(IssueState))]
+    public int StatusId { get; set; }
 
     /// <summary>
     /// 

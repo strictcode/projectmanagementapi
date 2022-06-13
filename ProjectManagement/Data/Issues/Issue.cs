@@ -16,7 +16,9 @@ public class Issue : ITrackable
 
     public string Summary { get; set; } = null!;
 
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; }
+
+    public IssueState Status { get; set; }
 
     public Project Project { get; set; }
     public Guid ProjectId { get; set; }
@@ -34,4 +36,23 @@ public class Issue : ITrackable
     public Instant ModifiedTimestamp { get; set; }
 
     public string ModifiedBy { get; set; } = null!;
+}
+
+/// <summary>
+/// 
+/// </summary>
+public enum IssueState
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    Todo = 1,
+    /// <summary>
+    /// 
+    /// </summary>
+    InProgress = 2,
+    /// <summary>
+    /// 
+    /// </summary>
+    Done = 3,
 }
