@@ -48,7 +48,6 @@ public static class IssueModelExtensions
         => queryable
         .Include(x => x.Assignee)
         .Include(x => x.Reporter)
-        .Include(x => x.Project)
         ;
 
     /// <summary>
