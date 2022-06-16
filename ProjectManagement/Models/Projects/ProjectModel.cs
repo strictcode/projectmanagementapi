@@ -61,7 +61,6 @@ public static class ProjectModelExtensions
         .Include(x => x.Issues)
             .ThenInclude(x => x.Reporter)
         .Include(x => x.Issues)
-            .ThenInclude(x => x.Project)
         ;
 
     /// <summary>
