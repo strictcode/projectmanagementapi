@@ -23,6 +23,10 @@ public class IssueModel
     /// <summary>
     /// 
     /// </summary>
+    public int StatusId { get; set; }
+    /// <summary>
+    /// 
+    /// </summary>
     public UserShortModel Reporter { get; set; } = new();
     /// <summary>
     /// 
@@ -56,6 +60,7 @@ public static class IssueModelExtensions
         => new() {
             Id = source.Id,
             Summary = source.Summary,
+            StatusId = (int)source.Status,
             Description = source.Description,
             Assignee = source.Assignee?.ToShortModel(),
             Reporter = source.Reporter.ToShortModel(),

@@ -21,7 +21,7 @@ public class ProjectModel
     /// <summary>
     /// 
     /// </summary>
-    public IEnumerable<IssueIndexModel> Issues { get; set; } = Enumerable.Empty<IssueIndexModel>();
+    public IEnumerable<IssueModel> Issues { get; set; } = Enumerable.Empty<IssueModel>();
 
     /// <summary>
     /// 
@@ -57,6 +57,11 @@ public static class ProjectModelExtensions
     public static IQueryable<Project> IncludeForModel(this IQueryable<Project> queryable)
         => queryable
         .Include(x => x.Issues)
+            .ThenInclude(x => x.Assignee)
+        .Include(x => x.Issues)
+            .ThenInclude(x => x.Reporter)
+        .Include(x => x.Issues)
+            .ThenInclude(x => x.Project)
         ;
 
     /// <summary>
@@ -68,7 +73,7 @@ public static class ProjectModelExtensions
         => new() {
             Id = source.Id,
             Name = source.Name,
-            Issues = source.Issues.Select(x => x.ToIndexModel()),
+            Issues = source.Issues.Select(x => x.ToDetailModel()),
             CreatedDate = source.CreatedTimestamp.ToString(),
             ModifiedDate = source.ModifiedTimestamp.ToString(),
             CreatedName = source.CreatedBy,
