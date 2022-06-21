@@ -100,6 +100,7 @@ public class IssueController : ControllerBase
             ReporterId = User.GetUserId(),
             ProjectId = model.ProjectId,
             Status = (IssueState)model.StatusId,
+            Description = model.Description,
         }.SetCreateBy(User.GetName(), clock.GetCurrentInstant());
 
         dbContext.Add(issue);
